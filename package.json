@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A platform showcasing conservation projects managed by a private company that measures business carbon footprints. Companies contribute donations, and the platform displays their support and the impact of offsetting their emissions.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js"
