@@ -1,5 +1,5 @@
-import app from './app.js';
-import { sequelize } from './db.js';
+const app = require('./app');
+const { sequelize } = require('./db'); // ✅ CommonJS
 
 const port = process.env.PORT || 4000;
 
@@ -8,7 +8,7 @@ const port = process.env.PORT || 4000;
     await sequelize.authenticate();
     console.log('✅ Conexión a MySQL ok');
 
-    // Sin migraciones: crea tablas si no existen
+    // Crea tablas si no existen
     await sequelize.sync();
 
     app.listen(port, () => console.log(`🚀 API en http://localhost:${port}`));
