@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../../db'); // ajusta la ruta según tu proyecto
-const User = require('./User');
-const Product = require('./Product');
+const User = require('./user');
+const Product = require('./product');
 
 const Transaction = sequelize.define('Transaction', {
   id: {
