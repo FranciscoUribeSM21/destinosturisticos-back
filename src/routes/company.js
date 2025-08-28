@@ -7,7 +7,6 @@ const router = express.Router();
 router.get('/', async (_req, res) => {
   try {
     const companies = await Company.findAll();
-    console.log("eaaaaaa")
     res.json(companies);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch companies' });
