@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 
 const companyRoutes = require('./src/routes/company');
-const projectRoutes = require('./src/routes/project');
+const projectPrivateRoutes = require('./src/routes/project.private');
+const projectPublicRoutes = require('./src/routes/project.public');
 const transactionRoutes = require('./src/routes/transaction');
 const authRoutes = require("./src/routes/auth");
 const authMiddleware = require("./src/middlewares/auth");
@@ -17,8 +18,10 @@ app.use(express.json());
 // Rutas públicas
 
 app.use("/api/auth", authRoutes);
+app.use('/api/public/projects', projectPublicRoutes);
+// Rutas protegidas
 app.use('/api/companies', authMiddleware, companyRoutes);
-app.use('/api/projects', authMiddleware, projectRoutes);
+app.use('/api/projects', authMiddleware, projectPrivateRoutes);
 app.use('/api/transactions', authMiddleware, transactionRoutes);
 
 app.get('/', (req, res) => {
