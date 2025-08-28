@@ -2,7 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const { generateToken } = require("../utils/jwt");
 const User = require("../models/user");
-
+const crypto = require('crypto');
 const router = express.Router();
 
 // Simulación de base de datos en memoria (reemplaza por tu modelo Sequelize/MongoDB)
