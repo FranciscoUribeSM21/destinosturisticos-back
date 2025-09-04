@@ -46,12 +46,12 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true,
-    field: 'is_active',
+    // field: 'is_active',
   },
   lastLogin: {
     type: DataTypes.DATE,
     allowNull: true,
-    field: 'last_login',
+    // field: 'last_login',
   },
   createdBy: {
     type: DataTypes.INTEGER,
