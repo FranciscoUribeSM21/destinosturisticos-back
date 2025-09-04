@@ -17,7 +17,7 @@ const { sequelize } = require('../../db'); // 👈 ajusta la ruta según tu proy
       allowNull: false,
       unique: true,
     },
-    passwordHash: {
+    password_hash: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },

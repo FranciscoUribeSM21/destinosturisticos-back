@@ -1,54 +1,73 @@
+// models/Transaction.js
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../db'); // ajusta la ruta según tu proyecto
+const { sequelize } = require('../../db'); // 👈 ajusta la ruta según tu proyecto
 const User = require('./user');
-const Product = require('./product');
+const Company = require('./company');
+const Project = require('./project');
 
-const Transaction = sequelize.define('Transaction', {
-  id: {
-    type: DataTypes.STRING,
-    primaryKey: true,
+const Transaction = sequelize.define(
+  'Transaction',
+  {
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    company_id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: true,
+      references: {
+        model: 'companies',
+        key: 'id',
+      },
+    },
+    project_id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: true,
+      references: {
+        model: 'projects',
+        key: 'id',
+      },
+    },
+    amount: {
+      type: DataTypes.DECIMAL,
+      allowNull: true,
+    },
+    credits_count: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    created_by: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: true,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+    },
+    updated_by: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: true,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+    },
   },
-  date: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
-  userId: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  productId: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  quantity: {
-    type: DataTypes.INTEGER.UNSIGNED,
-    allowNull: false,
-  },
-  unitPrice: {
-    type: DataTypes.FLOAT,
-    allowNull: false,
-  },
-  currency: {
-    type: DataTypes.STRING(10),
-    allowNull: false,
-  },
-  paymentMethod: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-  },
-  status: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-  },
-}, {
-  sequelize,
-  tableName: 'transactions',
-  modelName: 'Transaction',
-  timestamps: true,
-});
+  {
+    sequelize,
+    tableName: 'transactions',
+    modelName: 'Transaction',
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  }
+);
 
 // 🔹 Associations
-Transaction.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-Transaction.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+Transaction.belongsTo(Company, { foreignKey: 'company_id', as: 'company' });
+Transaction.belongsTo(Project, { foreignKey: 'project_id', as: 'project' });
+Transaction.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
+Transaction.belongsTo(User, { foreignKey: 'updated_by', as: 'updater' });
 
 module.exports = Transaction;

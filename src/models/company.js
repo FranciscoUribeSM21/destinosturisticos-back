@@ -2,7 +2,8 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../../db'); // 👈 ajusta la ruta según tu proyecto
 
-const Company = sequelize.define('Company',
+const Company = sequelize.define(
+  'Company',
   {
     id: {
       type: DataTypes.INTEGER.UNSIGNED,
@@ -10,35 +11,64 @@ const Company = sequelize.define('Company',
       primaryKey: true,
     },
     name: {
-      type: DataTypes.STRING(150),
+      type: DataTypes.TEXT, // Nombre
       allowNull: false,
     },
-    address: {
-      type: DataTypes.STRING(255),
+    logo_url: {
+      type: DataTypes.TEXT, // Puede ser URL o bytea si usas PostgreSQL
       allowNull: false,
     },
-    url: {
-      type: DataTypes.STRING(255),
+    annual_emissions: {
+      type: DataTypes.DECIMAL, // numeric
       allowNull: false,
     },
-    phone: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
     },
-    category: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
-    employees: {
+    email: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      validate: {
+        isEmail: true,
+      },
+    },
+    region: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    dashboard_url: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    created_by: {
       type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false,
+      allowNull: true,
+      references: {
+        model: 'users', // 👈 tabla users
+        key: 'id',
+      },
+    },
+    updated_by: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: true,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     },
   },
   {
     sequelize,
     tableName: 'companies',
     modelName: 'Company',
-    timestamps: true,
+    timestamps: true, // crea createdAt y updatedAt automáticamente
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
   }
 );
 
