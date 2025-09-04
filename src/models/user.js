@@ -17,9 +17,10 @@ const { sequelize } = require('../../db'); // 👈 ajusta la ruta según tu proy
       allowNull: false,
       unique: true,
     },
-    password_hash: {
+    passwordHash: {   
       type: DataTypes.STRING(255),
       allowNull: false,
+      field: 'password_hash'
     },
     salt: {
       type: DataTypes.STRING(255),
