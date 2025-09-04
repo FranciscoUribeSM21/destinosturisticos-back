@@ -24,7 +24,7 @@ router.post("/register", async (req, res) => {
   
       // Crear nuevo usuario
       const newUser = await User.create({
-        id: crypto.randomUUID(),  // UUID único
+        uuid: crypto.randomUUID(),  // UUID único
         name,
         email,
         passwordHash,
