@@ -1,15 +1,15 @@
+// migrations/20250904-create-all-tables.js
 'use strict';
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    // ======================================
-    // 1️⃣ Users
-    // ======================================
+  async up(queryInterface, Sequelize) {
+    // Users
     await queryInterface.createTable('users', {
       id: { 
         type: Sequelize.INTEGER.UNSIGNED, 
         autoIncrement: true, 
-        primaryKey: true 
+        primaryKey: true,
+        allowNull: false,
       },
       uuid: { 
         type: Sequelize.STRING(255), 
@@ -23,55 +23,44 @@ module.exports = {
       role: { type: Sequelize.STRING(50), allowNull: false, defaultValue: 'user' },
       isActive: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: true },
       lastLogin: { type: Sequelize.DATE, allowNull: true },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
+      created_by: { type: Sequelize.INTEGER, allowNull: true },
+      updated_by: { type: Sequelize.INTEGER, allowNull: true },
+      created_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
+      updated_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
     });
 
-    // ======================================
-    // 2️⃣ Companies
-    // ======================================
+    // Companies
     await queryInterface.createTable('companies', {
       id: { type: Sequelize.INTEGER.UNSIGNED, autoIncrement: true, primaryKey: true },
       name: { type: Sequelize.STRING(150), allowNull: false },
       logo_url: { type: Sequelize.TEXT, allowNull: false },
       annual_emissions: { type: Sequelize.DECIMAL, allowNull: false },
-      is_active: { type: Sequelize.BOOLEAN, allowNull: true, defaultValue: true },
+      is_active: { type: Sequelize.BOOLEAN, allowNull: true },
       description: { type: Sequelize.TEXT, allowNull: true },
       email: { type: Sequelize.TEXT, allowNull: true },
+      address: { type: Sequelize.STRING(255), allowNull: false },
+      phone: { type: Sequelize.STRING(50), allowNull: false },
+      category: { type: Sequelize.STRING(100), allowNull: false },
       region: { type: Sequelize.TEXT, allowNull: true },
       dashboard_url: { type: Sequelize.TEXT, allowNull: true },
-      created_by: { 
-        type: Sequelize.STRING, 
-        references: { model: 'users', key: 'uuid' }, 
-        allowNull: true,
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
-      },
-      updated_by: { 
-        type: Sequelize.STRING, 
-        references: { model: 'users', key: 'uuid' }, 
-        allowNull: true,
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
-      },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
+      created_by: { type: Sequelize.INTEGER, allowNull: true },
+      updated_by: { type: Sequelize.INTEGER, allowNull: true },
+      created_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
+      updated_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
     });
 
-    // ======================================
-    // 3️⃣ Projects
-    // ======================================
+    // Projects
     await queryInterface.createTable('projects', {
       id: { type: Sequelize.INTEGER.UNSIGNED, autoIncrement: true, primaryKey: true },
-      name: { type: Sequelize.TEXT, allowNull: false },
+      name: { type: Sequelize.STRING(255), allowNull: false },
       carousel_image_1: { type: Sequelize.TEXT, allowNull: false },
       carousel_image_2: { type: Sequelize.TEXT, allowNull: true },
       carousel_image_3: { type: Sequelize.TEXT, allowNull: true },
       region: { type: Sequelize.TEXT, allowNull: false },
       methodology: { type: Sequelize.TEXT, allowNull: true },
       area: { type: Sequelize.DECIMAL, allowNull: true },
-      is_open_for_purchase: { type: Sequelize.BOOLEAN, allowNull: true, defaultValue: false },
-      is_visible: { type: Sequelize.BOOLEAN, allowNull: true, defaultValue: true },
+      is_open_for_purchase: { type: Sequelize.BOOLEAN, allowNull: true },
+      is_visible: { type: Sequelize.BOOLEAN, allowNull: true },
       credit_price: { type: Sequelize.DECIMAL, allowNull: false },
       total_project_value: { type: Sequelize.DECIMAL, allowNull: false },
       total_credits: { type: Sequelize.INTEGER, allowNull: false },
@@ -80,85 +69,46 @@ module.exports = {
       content_block_1: { type: Sequelize.TEXT, allowNull: false },
       content_block_2: { type: Sequelize.TEXT, allowNull: true },
       content_block_3: { type: Sequelize.TEXT, allowNull: true },
-      created_by: { 
-        type: Sequelize.STRING, 
-        references: { model: 'users', key: 'uuid' }, 
-        allowNull: true,
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
-      },
-      updated_by: { 
-        type: Sequelize.STRING, 
-        references: { model: 'users', key: 'uuid' }, 
-        allowNull: true,
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
-      },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
+      created_by: { type: Sequelize.INTEGER, allowNull: true },
+      updated_by: { type: Sequelize.INTEGER, allowNull: true },
+      created_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
+      updated_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
     });
 
-    // ======================================
-    // 4️⃣ Transactions
-    // ======================================
+    // Transactions
     await queryInterface.createTable('transactions', {
       id: { type: Sequelize.STRING, primaryKey: true },
-      company_id: { 
-        type: Sequelize.INTEGER.UNSIGNED, 
-        references: { model: 'companies', key: 'id' }, 
-        allowNull: true,
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
-      },
-      project_id: { 
-        type: Sequelize.INTEGER.UNSIGNED, 
-        references: { model: 'projects', key: 'id' }, 
-        allowNull: true,
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
-      },
-      user_id: { 
-        type: Sequelize.STRING, 
-        references: { model: 'users', key: 'uuid' }, 
+      user_id: {
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
+        references: { model: 'users', key: 'id' },
         onUpdate: 'CASCADE',
-        onDelete: 'RESTRICT'
+        onDelete: 'RESTRICT',
+      },
+      company_id: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: true,
+        references: { model: 'companies', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+      },
+      project_id: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: true,
+        references: { model: 'projects', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
       },
       amount: { type: Sequelize.DECIMAL, allowNull: true },
       credits_count: { type: Sequelize.INTEGER, allowNull: true },
-      created_by: { 
-        type: Sequelize.STRING, 
-        references: { model: 'users', key: 'uuid' }, 
-        allowNull: true,
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
-      },
-      updated_by: { 
-        type: Sequelize.STRING, 
-        references: { model: 'users', key: 'uuid' }, 
-        allowNull: true,
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
-      },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
+      created_by: { type: Sequelize.INTEGER, allowNull: true },
+      updated_by: { type: Sequelize.INTEGER, allowNull: true },
+      created_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
+      updated_at: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
     });
-
-    // ======================================
-    // 5️⃣ Products: eliminar tabla
-    // ======================================
-    await queryInterface.dropTable('products');
   },
 
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('products', {
-      id: { type: Sequelize.STRING, primaryKey: true },
-      name: { type: Sequelize.STRING(150), allowNull: false },
-      category: { type: Sequelize.STRING(100), allowNull: false },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.fn('NOW') },
-    });
-
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('transactions');
     await queryInterface.dropTable('projects');
     await queryInterface.dropTable('companies');
