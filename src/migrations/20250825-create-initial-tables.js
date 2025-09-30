@@ -38,9 +38,6 @@ module.exports = {
       is_active: { type: Sequelize.BOOLEAN, allowNull: true },
       description: { type: Sequelize.TEXT, allowNull: true },
       email: { type: Sequelize.TEXT, allowNull: true },
-      address: { type: Sequelize.STRING(255), allowNull: false },
-      phone: { type: Sequelize.STRING(50), allowNull: false },
-      category: { type: Sequelize.STRING(100), allowNull: false },
       region: { type: Sequelize.TEXT, allowNull: true },
       dashboard_url: { type: Sequelize.TEXT, allowNull: true },
       created_by: { type: Sequelize.INTEGER, allowNull: true },
@@ -78,13 +75,6 @@ module.exports = {
     // Transactions
     await queryInterface.createTable('transactions', {
       id: { type: Sequelize.STRING, primaryKey: true },
-      user_id: {
-        type: Sequelize.INTEGER.UNSIGNED,
-        allowNull: false,
-        references: { model: 'users', key: 'id' },
-        onUpdate: 'CASCADE',
-        onDelete: 'RESTRICT',
-      },
       company_id: {
         type: Sequelize.INTEGER.UNSIGNED,
         allowNull: true,

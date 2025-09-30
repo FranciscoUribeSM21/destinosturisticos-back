@@ -4,7 +4,6 @@ const router = express.Router();
 
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
-const Product = require('../models/product');
 
 // ✅ Get all transactions (with relations)
 router.get('/', async (_req, res) => {
@@ -12,7 +11,6 @@ router.get('/', async (_req, res) => {
     const transactions = await Transaction.findAll({
       include: [
         { model: User, as: 'user' },
-        { model: Product, as: 'product' },
       ],
     });
     res.json(transactions);

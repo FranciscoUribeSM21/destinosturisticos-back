@@ -1,6 +1,6 @@
 // models/Transaction.js
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../db'); // 👈 ajusta la ruta según tu proyecto
+const { sequelize } = require('../../db'); // ajusta la ruta según tu proyecto
 const User = require('./user');
 const Company = require('./company');
 const Project = require('./project');
@@ -15,43 +15,53 @@ const Transaction = sequelize.define(
     },
     company_id: {
       type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: true,
+      allowNull: false, // normalmente una transacción debe tener compañía
       references: {
-        model: 'companies',
+        model: Company,
         key: 'id',
       },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL', // si borran la compañía, dejar null
     },
     project_id: {
       type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: true,
+      allowNull: false, // normalmente una transacción debe tener proyecto
       references: {
-        model: 'projects',
+        model: Project,
         key: 'id',
       },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
     },
     amount: {
-      type: DataTypes.DECIMAL,
-      allowNull: true,
+      type: DataTypes.DECIMAL(12, 2),
+      allowNull: false,
+      defaultValue: 0,
     },
     credits_count: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false,
+      defaultValue: 0,
     },
     created_by: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: true,
       references: {
-        model: 'users',
+        model: User,
         key: 'id',
       },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
     },
     updated_by: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: true,
       references: {
-        model: 'users',
+        model: User,
         key: 'id',
       },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
     },
   },
   {
