@@ -2,19 +2,23 @@
 const express = require('express');
 const router = express.Router();
 
-const Transaction = require('../models/transaction');
-const User = require('../models/user');
+const { Transaction } = require('../models');
+const { User } = require("../models");
+const { Project } = require('../models');
 
 // ✅ Get all transactions (with relations)
 router.get('/', async (_req, res) => {
   try {
     const transactions = await Transaction.findAll({
       include: [
-        { model: User, as: 'user' },
+        { model: User, as: 'creator' },
+        { model: User, as: 'updater' },
+        { model: Project, as: 'project' }, 
       ],
     });
     res.json(transactions);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: 'Failed to fetch transactions' });
   }
 });
@@ -24,8 +28,9 @@ router.get('/:id', async (req, res) => {
   try {
     const transaction = await Transaction.findByPk(req.params.id, {
       include: [
-        { model: User, as: 'user' },
-        { model: Product, as: 'product' },
+        { model: User, as: 'creator' },
+        { model: User, as: 'updater' },
+        { model: Project, as: 'project' }, 
       ],
     });
     if (!transaction) {
