@@ -54,6 +54,17 @@ module.exports = (sequelize) => {
       allowNull: true,
       // field: 'last_login',
     },
+    // 🔹 Campos nuevos para restablecer contraseña
+    reset_password_token: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      field: 'reset_password_token',
+    },
+    reset_password_expires: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'reset_password_expires',
+    },
     createdBy: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -75,5 +86,3 @@ module.exports = (sequelize) => {
   
   return User;    
 };
-
-

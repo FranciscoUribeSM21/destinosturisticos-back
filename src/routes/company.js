@@ -29,9 +29,16 @@ router.get('/:id', async (req, res) => {
 // ✅ Create company
 router.post('/', async (req, res) => {
   try {
-    const company = await Company.create(req.body);
+     const userId = req.user?.id; 
+     const companyData = {
+       ...req.body,
+       created_by: userId,
+       updated_by: userId,
+     };
+    const company = await Company.create(companyData);
     res.status(201).json(company);
   } catch (error) {
+    console.log(error)
     res.status(400).json({ error: 'Failed to create company' });
   }
 });

@@ -29,7 +29,13 @@ router.get('/:id', async (req, res) => {
 // ✅ Create project
 router.post('/', async (req, res) => {
   try {
-    const project = await Project.create(req.body);
+    const userId = req.user?.id; 
+    const projectData = {
+      ...req.body,
+      created_by: userId,
+      updated_by: userId,
+    };
+    const project = await Project.create(projectData);
     res.status(201).json(project);
   } catch (error) {
     res.status(400).json({ error: 'Failed to create project' });
