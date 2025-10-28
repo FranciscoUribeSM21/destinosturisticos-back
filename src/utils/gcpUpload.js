@@ -2,7 +2,7 @@
 const { Storage } = require('@google-cloud/storage');
 const fs = require('fs');
 // Parseamos la variable de entorno
-const credentials = JSON.parse(process.env.GCP_KEY);
+const credentials = JSON.parse(process.env.GCP_KEY || '{}');
 
 const storage = new Storage({
   projectId: credentials.project_id,
