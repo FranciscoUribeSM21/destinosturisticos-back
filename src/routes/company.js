@@ -61,14 +61,21 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const company = await Company.findByPk(req.params.id);
+
     if (!company) {
       return res.status(404).json({ error: 'Company not found' });
     }
-    await company.destroy();
-    res.json({ message: 'Company deleted successfully' });
+
+    // Soft delete: marcar como eliminado en vez de borrar
+    company.is_deleted = true;
+    await company.save();
+
+    res.json({ message: 'Company marked as deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete company' });
+    console.error(error);
+    res.status(500).json({ error: 'Failed to mark company as deleted' });
   }
 });
+
 
 module.exports = router;

@@ -13,12 +13,16 @@ module.exports = (sequelize) => {
     dashboard_url: { type: DataTypes.TEXT, allowNull: true },
     created_by: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
     updated_by: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
+    is_deleted: { type: DataTypes.BOOLEAN, defaultValue: false },
   }, {
     tableName: 'companies',
     modelName: 'Company',
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+    defaultScope: {
+      where: { is_deleted: false },
+    },
   });
 
   return Company;
