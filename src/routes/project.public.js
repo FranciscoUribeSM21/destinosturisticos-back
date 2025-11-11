@@ -24,7 +24,8 @@ router.get('/:id', async (req, res) => {
         {
           model: Transaction,
           as: 'transactions',
-          include: [{ model: Company, as: 'company' }]
+          required: false,
+          include: [{ model: Company, as: 'company',  required: false, }]
         }
       ]
     });
