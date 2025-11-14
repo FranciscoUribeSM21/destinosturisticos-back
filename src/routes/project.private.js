@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const { Project } = require('../models');
+const { Project, Transaction } = require('../models');
 const { uploadImageToGCP } = require('../utils/gcpUpload');
 
 const router = express.Router();
@@ -28,6 +28,41 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch project' });
   }
 });
+
+// ✅ Get available credits for a project
+router.get('/:id/available-credits', async (req, res) => {
+  try {
+    const projectId = req.params.id;
+
+    const project = await Project.findByPk(projectId);
+
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Total disponibles en el proyecto
+    const totalCredits = Number(project.total_credits);
+
+    // Créditos ya usados
+    const usedCredits = await Transaction.sum('credits_count', {
+      where: { project_id: projectId }
+    }) || 0;
+
+    const availableCredits = totalCredits - usedCredits;
+
+    res.json({
+      project_id: Number(projectId),
+      total_credits: totalCredits,
+      used_credits: usedCredits,
+      available_credits: availableCredits
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch available credits' });
+  }
+});
+
 
 // ✅ Create project (con imágenes)
 router.post(
