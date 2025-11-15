@@ -2,9 +2,8 @@
 const express = require('express');
 const router = express.Router();
 
-const { Transaction } = require('../models');
-const { User } = require("../models");
-const { Project } = require('../models');
+const { User, Company, Transaction, Project } = require("../models");
+
 
 // ✅ Get all transactions (with relations)
 router.get('/', async (_req, res) => {
@@ -46,6 +45,7 @@ router.get('/:id', async (req, res) => {
         { model: User, as: 'creator' },
         { model: User, as: 'updater' },
         { model: Project, as: 'project' },
+        { model: Company, as: 'company' }
       ],
     });
 
