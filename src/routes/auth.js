@@ -51,8 +51,10 @@ router.post("/register", async (req, res) => {
 
 // Login
 router.post("/login", async (req, res) => {
+  console.log("NUEVO INTENGO DE LOGIN")
   const { email, password } = req.body;
-
+  const usuarios = await User.findAll()
+  //console.log(usuarios)
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {

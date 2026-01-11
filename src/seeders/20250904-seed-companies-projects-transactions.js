@@ -196,7 +196,7 @@ module.exports = {
     // ]);
 
     // Transactions
-    await queryInterface.bulkInsert('transactions', [
+   /*  await queryInterface.bulkInsert('transactions', [
       { company_id: 1, project_id: 1, amount: 25000, credits_count: 5000, created_at: new Date(), updated_at: new Date(), created_by: 1, updated_by: 1 },
       { company_id: 2, project_id: 2, amount: 30000, credits_count: 5000, created_at: new Date(), updated_at: new Date(), created_by: 1, updated_by: 1 },
       { company_id: 3, project_id: 3, amount: 11000, credits_count: 2000, created_at: new Date(), updated_at: new Date(), created_by: 1, updated_by: 1 },
@@ -204,7 +204,7 @@ module.exports = {
       { company_id: 5, project_id: 1, amount: 15000, credits_count: 3000, created_at: new Date(), updated_at: new Date(), created_by: 1, updated_by: 1 },
       { company_id: 1, project_id: 4, amount: 20000, credits_count: 3600, created_at: new Date(), updated_at: new Date(), created_by: 1, updated_by: 1 },
       { company_id: 2, project_id: 5, amount: 19500, credits_count: 3000, created_at: new Date(), updated_at: new Date(), created_by: 1, updated_by: 1 }
-    ]);
+    ]); */
   },
 
   async down(queryInterface, Sequelize) {
