@@ -7,6 +7,7 @@ const projectPublicRoutes = require('./src/routes/project.public');
 const transactionRoutes = require('./src/routes/transaction');
 const authRoutes = require("./src/routes/auth");
 const authMiddleware = require("./src/middlewares/auth");
+const emissionFactorsRouter = require('./src/routes/emissionFactors');
 
 const app = express();
 app.use(cors());
@@ -23,7 +24,7 @@ app.use('/api/public/projects', projectPublicRoutes);
 app.use('/api/companies', authMiddleware, companyRoutes);
 app.use('/api/projects', authMiddleware, projectPrivateRoutes);
 app.use('/api/transactions', authMiddleware, transactionRoutes);
-
+app.use('/api/emission-factors', authMiddleware, emissionFactorsRouter);
 app.get('/', (req, res) => {
   res.send('<h1>API corriendo 🚀</h1>');
 });

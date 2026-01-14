@@ -6,6 +6,10 @@ const Project = require('./project')(sequelize);
 const Company = require('./company')(sequelize);
 const Transaction = require('./transaction')(sequelize);
 
+const EmissionCategory = require('./emissionCategory')(sequelize);
+const EmissionSubcategory = require('./emissionSubcategory')(sequelize);
+const EmissionFactor = require('./emissionFactor')(sequelize);
+
 // 🔹 Asociaciones
 
 // Project ↔ Transaction (1:N)
@@ -28,6 +32,14 @@ User.hasMany(Project, { foreignKey: 'updated_by', as: 'updatedProjects' });
 User.hasMany(Company, { foreignKey: 'created_by', as: 'createdCompanies' });
 User.hasMany(Company, { foreignKey: 'updated_by', as: 'updatedCompanies' });
 
+// Una Categoría tiene muchas Subcategorías (Ej: Transporte -> Bus, Auto)
+EmissionCategory.hasMany(EmissionSubcategory, { foreignKey: 'category_id', as: 'subcategories' });
+EmissionSubcategory.belongsTo(EmissionCategory, { foreignKey: 'category_id', as: 'category' });
+
+// Una Subcategoría tiene muchos Factores (Ej: Bus -> CO2, CH4, N2O)
+EmissionSubcategory.hasMany(EmissionFactor, { foreignKey: 'subcategory_id', as: 'factors' });
+EmissionFactor.belongsTo(EmissionSubcategory, { foreignKey: 'subcategory_id', as: 'subcategory' });
+
 // Exporta todo
 module.exports = {
   sequelize,
@@ -35,4 +47,7 @@ module.exports = {
   Project,
   Company,
   Transaction,
+  EmissionCategory,
+  EmissionSubcategory,
+  EmissionFactor
 };

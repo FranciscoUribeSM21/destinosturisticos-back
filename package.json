@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "migrate": "npx sequelize db:migrate --env production",
+    "migrate": "npx sequelize-cli db:migrate --config src/config/database.js --migrations-path src/migrations --env production",
     "start": "npx sequelize db:migrate --config src/config/database.js --migrations-path src/migrations --env production && node index.js"
   },
   "repository": {
