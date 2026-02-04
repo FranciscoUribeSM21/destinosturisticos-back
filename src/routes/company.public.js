@@ -1,5 +1,6 @@
 const express = require('express');
 const { Company } = require('../models');
+
 const router = express.Router();
 
 // ✅ Obtener todas las empresas (Público)

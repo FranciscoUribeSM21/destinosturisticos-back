@@ -25,7 +25,7 @@ app.use('/api/public/projects', projectPublicRoutes);
 app.use('/api/companies', authMiddleware, companyRoutes);
 app.use('/api/projects', authMiddleware, projectPrivateRoutes);
 app.use('/api/transactions', authMiddleware, transactionRoutes);
-app.use('/api/emission-factors', authMiddleware, emissionFactorsRouter);
+app.use('/api/emission-factors', emissionFactorsRouter);
 app.get('/', (req, res) => {
   res.send('<h1>API corriendo 🚀</h1>');
 });
