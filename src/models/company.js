@@ -19,6 +19,8 @@ module.exports = (sequelize) => {
     contact_phone: { type: DataTypes.STRING(20), allowNull: true },
     emission_unit_type: { type: DataTypes.STRING(50), allowNull: true },
     emission_factor: { type: DataTypes.DECIMAL(10, 2), allowNull: true },
+    external_company_id: { type: DataTypes.STRING(100), allowNull: true },
+    emission_year: { type: DataTypes.INTEGER, allowNull: true },
     // ----------------------------------
 
     created_by: { type: DataTypes.INTEGER.UNSIGNED, allowNull: true },
