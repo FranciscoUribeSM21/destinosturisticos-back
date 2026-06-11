@@ -30,6 +30,12 @@ const getTargetEmissionYear = (value) => {
   return new Date().getFullYear() - 1;
 };
 
+const roundToTwoDecimals = (value) => {
+  const parsedValue = Number(value);
+  if (!Number.isFinite(parsedValue)) return null;
+  return Number(parsedValue.toFixed(2));
+};
+
 const loginToExternalApi = async ({ baseUrl, loginPath, email, password }) => {
   const response = await fetch(buildExternalUrl(baseUrl, loginPath), {
     method: 'POST',
@@ -70,6 +76,17 @@ const fetchExternalEmissions = async ({ baseUrl, emissionsPath, token, year }) =
 
   const data = await response.json();
   return Array.isArray(data) ? data : data.data || data.emisiones || [];
+};
+
+const getExternalEmissionIntensity = (externalData) => {
+  const intensity =
+    externalData.intensidad_emisiones_kgco2e_unidad ??
+    externalData.medida_productiva_anio?.intensidad_emisiones_kgco2e_unidad;
+
+  const parsedIntensity = Number(intensity);
+  if (!Number.isFinite(parsedIntensity)) return null;
+
+  return parsedIntensity / 365;
 };
 
 // ✅ Get all companies
@@ -174,7 +191,8 @@ router.post('/:id/sync-carbon-footprint', async (req, res) => {
 
     const syncData = {
       external_company_id: externalCompanyName,
-      annual_emissions: totalGhgKgco2e,
+      annual_emissions: roundToTwoDecimals(totalGhgKgco2e),
+      emission_factor: roundToTwoDecimals(getExternalEmissionIntensity(externalData)) ?? company.emission_factor,
       emission_year: Number(externalData.anio) || year,
       updated_by: req.user?.id || company.updated_by,
     };
