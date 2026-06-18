@@ -10,6 +10,8 @@ module.exports = (sequelize) => {
     amount_usd: { type: DataTypes.DECIMAL(12, 2), allowNull: false },
     amount_clp: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false },
     exchange_rate: { type: DataTypes.DECIMAL(12, 2), allowNull: false },
+    exchange_rate_source: { type: DataTypes.STRING(80), allowNull: true },
+    exchange_rate_date: { type: DataTypes.DATE, allowNull: true },
     status: {
       type: DataTypes.ENUM('PENDING', 'APPROVED', 'REJECTED', 'ERROR'),
       allowNull: false,
