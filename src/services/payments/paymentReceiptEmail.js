@@ -16,6 +16,11 @@ const formatNumber = (value) =>
     maximumFractionDigits: 2,
   });
 
+const formatDate = (value) => {
+  if (!value) return 'N/A';
+  return new Date(value).toLocaleDateString('es-CL');
+};
+
 const buildItemsRows = (items) =>
   items.map((item) => `
     <tr>
@@ -72,6 +77,11 @@ const sendPaymentReceiptEmail = async (payment) => {
             <p style="margin: 8px 0 0; font-size: 13px; color: #6b7280;">
               Equivalente aproximado cobrado: $${formatClp(paymentData.amount_clp)} CLP. Tipo de cambio usado: ${formatClp(paymentData.exchange_rate)} CLP/USD.
             </p>
+            ${paymentData.exchange_rate_source ? `
+              <p style="margin: 8px 0 0; font-size: 13px; color: #6b7280;">
+                Fuente del tipo de cambio: ${paymentData.exchange_rate_source} (${formatDate(paymentData.exchange_rate_date)}).
+              </p>
+            ` : ''}
           </div>
         </div>
       </div>

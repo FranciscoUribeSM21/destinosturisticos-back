@@ -7,6 +7,7 @@ const Company = require('./company')(sequelize);
 const Transaction = require('./transaction')(sequelize);
 const Payment = require('./payment')(sequelize);
 const PaymentItem = require('./paymentItem')(sequelize);
+const ExchangeRate = require('./exchangeRate')(sequelize);
 
 const EmissionCategory = require('./emissionCategory')(sequelize);
 const EmissionSubcategory = require('./emissionSubcategory')(sequelize);
@@ -59,6 +60,7 @@ module.exports = {
   Transaction,
   Payment,
   PaymentItem,
+  ExchangeRate,
   EmissionCategory,
   EmissionSubcategory,
   EmissionFactor

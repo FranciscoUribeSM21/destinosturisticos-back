@@ -96,7 +96,7 @@ router.post('/create', async (req, res) => {
 
   try {
     const { buyerName, buyerEmail, items } = parseCheckoutPayload(req.body);
-    const exchangeRate = getUsdToClpRate();
+    const exchangeRate = await getUsdToClpRate();
     const buyOrder = createBuyOrder();
     const sessionId = createSessionId();
     const frontendUrl = getFrontendUrl(req);
@@ -137,7 +137,7 @@ router.post('/create', async (req, res) => {
     }
 
     amountUsd = roundUsd(amountUsd);
-    const amountClp = Math.max(1, Math.round(amountUsd * exchangeRate));
+    const amountClp = Math.max(1, Math.round(amountUsd * exchangeRate.rate));
 
     const provider = getPaymentProvider(req);
     const transactionResponse = await provider.createTransaction(
@@ -154,7 +154,9 @@ router.post('/create', async (req, res) => {
       buyer_email: buyerEmail,
       amount_usd: amountUsd,
       amount_clp: amountClp,
-      exchange_rate: exchangeRate,
+      exchange_rate: exchangeRate.rate,
+      exchange_rate_source: exchangeRate.source,
+      exchange_rate_date: exchangeRate.source_date,
       status: 'PENDING',
       token: transactionResponse.token,
       provider: process.env.PAYMENT_PROVIDER || 'mock',
@@ -180,13 +182,34 @@ router.post('/create', async (req, res) => {
       url: transactionResponse.url,
       amount_usd: amountUsd,
       amount_clp: amountClp,
-      exchange_rate: exchangeRate,
+      exchange_rate: exchangeRate.rate,
+      exchange_rate_source: exchangeRate.source,
+      exchange_rate_date: exchangeRate.source_date,
+      exchange_rate_is_fallback: exchangeRate.is_fallback,
       return_url: returnUrl,
     });
   } catch (error) {
     await dbTransaction.rollback();
     console.error(error);
     res.status(400).json({ error: error.message || 'No se pudo crear el pago' });
+  }
+});
+
+router.get('/exchange-rate', async (_req, res) => {
+  try {
+    const exchangeRate = await getUsdToClpRate();
+
+    res.json({
+      currency_from: 'USD',
+      currency_to: 'CLP',
+      rate: exchangeRate.rate,
+      source: exchangeRate.source,
+      source_date: exchangeRate.source_date,
+      is_fallback: exchangeRate.is_fallback,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(503).json({ error: error.message || 'No se pudo obtener el tipo de cambio' });
   }
 });
 
