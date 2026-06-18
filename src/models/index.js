@@ -5,6 +5,8 @@ const User = require('./user')(sequelize);
 const Project = require('./project')(sequelize);
 const Company = require('./company')(sequelize);
 const Transaction = require('./transaction')(sequelize);
+const Payment = require('./payment')(sequelize);
+const PaymentItem = require('./paymentItem')(sequelize);
 
 const EmissionCategory = require('./emissionCategory')(sequelize);
 const EmissionSubcategory = require('./emissionSubcategory')(sequelize);
@@ -25,6 +27,14 @@ User.hasMany(Transaction, { foreignKey: 'created_by', as: 'createdTransactions' 
 User.hasMany(Transaction, { foreignKey: 'updated_by', as: 'updatedTransactions' });
 Transaction.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
 Transaction.belongsTo(User, { foreignKey: 'updated_by', as: 'updater' });
+
+// Payment ↔ PaymentItem (1:N)
+Payment.hasMany(PaymentItem, { foreignKey: 'payment_id', as: 'items' });
+PaymentItem.belongsTo(Payment, { foreignKey: 'payment_id', as: 'payment' });
+
+// Project ↔ PaymentItem (1:N)
+Project.hasMany(PaymentItem, { foreignKey: 'project_id', as: 'payment_items' });
+PaymentItem.belongsTo(Project, { foreignKey: 'project_id', as: 'project' });
 
 // User ↔ User (creator / updater) para Project y Company si quieres
 User.hasMany(Project, { foreignKey: 'created_by', as: 'createdProjects' });
@@ -47,6 +57,8 @@ module.exports = {
   Project,
   Company,
   Transaction,
+  Payment,
+  PaymentItem,
   EmissionCategory,
   EmissionSubcategory,
   EmissionFactor
