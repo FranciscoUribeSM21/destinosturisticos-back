@@ -5,6 +5,7 @@ const router = express.Router();
 const { sequelize, Project, Transaction, Payment, PaymentItem } = require('../models');
 const { getUsdToClpRate } = require('../services/exchangeRate');
 const { getFrontendUrl, getPaymentProvider } = require('../services/payments/providerFactory');
+const { sendPaymentReceiptEmail } = require('../services/payments/paymentReceiptEmail');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -228,6 +229,14 @@ router.post('/commit', async (req, res) => {
     const updatedPayment = await Payment.findByPk(payment.id, {
       include: [{ model: PaymentItem, as: 'items' }],
     });
+
+    if (nextStatus === 'APPROVED') {
+      try {
+        await sendPaymentReceiptEmail(updatedPayment);
+      } catch (emailError) {
+        console.error('Receipt email could not be sent:', emailError.message);
+      }
+    }
 
     res.json(updatedPayment);
   } catch (error) {
