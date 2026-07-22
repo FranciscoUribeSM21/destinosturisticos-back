@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const { sequelize, Project, Transaction, Payment, PaymentItem } = require('../models');
 const { getUsdToClpRate } = require('../services/exchangeRate');
-const { getFrontendUrl, getPaymentProvider } = require('../services/payments/providerFactory');
+const { getFrontendUrl, getPaymentProvider, getPublicApiUrl } = require('../services/payments/providerFactory');
 const { sendPaymentReceiptEmail } = require('../services/payments/paymentReceiptEmail');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -25,6 +25,69 @@ const createBuyOrder = () => {
 };
 
 const createSessionId = () => crypto.randomUUID();
+
+const getPaymentProviderName = () => String(process.env.PAYMENT_PROVIDER || 'mock').toLowerCase();
+
+const getReturnParams = (req) => ({
+  ...req.query,
+  ...req.body,
+});
+
+const appendReturnParams = (url, params) => {
+  const redirectUrl = new URL(url);
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') return;
+    redirectUrl.searchParams.set(key, String(value));
+  });
+
+  return redirectUrl.toString();
+};
+
+const findPaymentFromReturnParams = async (params) => {
+  const token = String(params.token_ws || params.token || params.TBK_TOKEN || '').trim();
+  const buyOrder = String(params.TBK_ORDEN_COMPRA || '').trim();
+  const sessionId = String(params.TBK_ID_SESION || '').trim();
+
+  if (token) {
+    const payment = await Payment.findOne({
+      where: { token },
+      include: [{ model: PaymentItem, as: 'items' }],
+    });
+
+    if (payment) return payment;
+  }
+
+  if (buyOrder || sessionId) {
+    return Payment.findOne({
+      where: {
+        ...(buyOrder ? { buy_order: buyOrder } : {}),
+        ...(sessionId ? { session_id: sessionId } : {}),
+      },
+      include: [{ model: PaymentItem, as: 'items' }],
+    });
+  }
+
+  return null;
+};
+
+const updateInterruptedPayment = async (payment, nextStatus, returnParams) => {
+  if (['APPROVED', 'REJECTED', 'ERROR'].includes(payment.status)) {
+    return payment;
+  }
+
+  await payment.update({
+    status: nextStatus,
+    response_json: {
+      ...(payment.response_json || {}),
+      return: returnParams,
+    },
+  });
+
+  return Payment.findByPk(payment.id, {
+    include: [{ model: PaymentItem, as: 'items' }],
+  });
+};
 
 const getApprovedPaymentCredits = async (projectId) => {
   const approvedItems = await PaymentItem.findAll({
@@ -99,8 +162,8 @@ router.post('/create', async (req, res) => {
     const exchangeRate = await getUsdToClpRate();
     const buyOrder = createBuyOrder();
     const sessionId = createSessionId();
-    const frontendUrl = getFrontendUrl(req);
-    const returnUrl = `${frontendUrl}/payment/return`;
+    const apiUrl = getPublicApiUrl(req);
+    const returnUrl = `${apiUrl}/api/public/payments/return`;
 
     const paymentItems = [];
     let amountUsd = 0;
@@ -159,7 +222,7 @@ router.post('/create', async (req, res) => {
       exchange_rate_date: exchangeRate.source_date,
       status: 'PENDING',
       token: transactionResponse.token,
-      provider: process.env.PAYMENT_PROVIDER || 'mock',
+      provider: getPaymentProviderName(),
       response_json: {
         create: transactionResponse,
       },
@@ -213,26 +276,46 @@ router.get('/exchange-rate', async (_req, res) => {
   }
 });
 
+router.all('/return', (req, res) => {
+  const frontendUrl = getFrontendUrl(req);
+  const redirectUrl = appendReturnParams(`${frontendUrl}/payment/return`, getReturnParams(req));
+
+  res.redirect(303, redirectUrl);
+});
+
 router.post('/commit', async (req, res) => {
   try {
-    const token = String(req.body.token_ws || req.body.token || '').trim();
+    const returnParams = getReturnParams(req);
+    const token = String(returnParams.token_ws || returnParams.token || '').trim();
+    const tbkToken = String(returnParams.TBK_TOKEN || '').trim();
+    const hasTimeoutParams = Boolean(returnParams.TBK_ORDEN_COMPRA || returnParams.TBK_ID_SESION);
     const mockStatus = req.body.status === 'rejected' ? 'rejected' : undefined;
 
     if (!token) {
-      return res.status(400).json({ error: 'Token requerido' });
+      const interruptedPayment = await findPaymentFromReturnParams(returnParams);
+
+      if (!interruptedPayment) {
+        return res.status(400).json({ error: 'Retorno de pago incompleto' });
+      }
+
+      const nextStatus = tbkToken ? 'REJECTED' : 'ERROR';
+      const updatedPayment = await updateInterruptedPayment(interruptedPayment, nextStatus, returnParams);
+      return res.json(updatedPayment);
     }
 
-    const payment = await Payment.findOne({
-      where: { token },
-      include: [{ model: PaymentItem, as: 'items' }],
-    });
+    const payment = await findPaymentFromReturnParams(returnParams);
 
     if (!payment) {
       return res.status(404).json({ error: 'Pago no encontrado' });
     }
 
-    if (payment.status === 'APPROVED' || payment.status === 'REJECTED') {
+    if (['APPROVED', 'REJECTED', 'ERROR'].includes(payment.status)) {
       return res.json(payment);
+    }
+
+    if (hasTimeoutParams && tbkToken) {
+      const updatedPayment = await updateInterruptedPayment(payment, 'REJECTED', returnParams);
+      return res.json(updatedPayment);
     }
 
     const provider = getPaymentProvider(req);
@@ -245,6 +328,7 @@ router.post('/commit', async (req, res) => {
       payment_type: commitResponse.paymentType || null,
       response_json: {
         ...(payment.response_json || {}),
+        return: returnParams,
         commit: commitResponse.response,
       },
     });
