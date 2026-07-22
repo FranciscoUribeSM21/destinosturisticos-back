@@ -6,6 +6,19 @@ const { uploadImageToGCP } = require('../utils/gcpUpload');
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
+const booleanFields = ['is_open_for_purchase', 'is_visible'];
+
+const normalizeProjectPayload = (payload) => {
+  const normalized = { ...payload };
+
+  booleanFields.forEach((field) => {
+    if (normalized[field] === undefined) return;
+    normalized[field] = normalized[field] === true || normalized[field] === 'true' || normalized[field] === '1';
+  });
+
+  return normalized;
+};
+
 // ✅ Get all projects
 router.get('/', async (_req, res) => {
   try {
@@ -76,7 +89,7 @@ router.post(
     try {
       const userId = req.user?.id;
       const projectData = {
-        ...req.body,
+        ...normalizeProjectPayload(req.body),
         created_by: userId,
         updated_by: userId,
       };
@@ -114,7 +127,7 @@ router.put(
       const project = await Project.findByPk(req.params.id);
       if (!project) return res.status(404).json({ error: 'Project not found' });
 
-      const projectData = { ...req.body };
+      const projectData = normalizeProjectPayload(req.body);
 
       if (req.files['carousel_image_1_file']) {
         projectData.carousel_image_1 = await uploadImageToGCP(req.files['carousel_image_1_file'][0]);
