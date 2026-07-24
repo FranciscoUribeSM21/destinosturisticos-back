@@ -12,6 +12,18 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const roundUsd = (value) => Math.round(value * 100) / 100;
 const roundTons = (value) => Math.round(value * 10000) / 10000;
 
+const getForcedPaymentAmountClp = () => {
+  const rawAmount = process.env.FORCE_PAYMENT_AMOUNT_CLP;
+  if (!rawAmount) return null;
+
+  const amount = Number(rawAmount);
+  if (!Number.isInteger(amount) || amount <= 0) {
+    throw new Error('FORCE_PAYMENT_AMOUNT_CLP debe ser un entero positivo');
+  }
+
+  return amount;
+};
+
 const isProjectPurchasable = (project) =>
   Boolean(project?.is_open_for_purchase) &&
   Number(project?.credit_price) > 0 &&
@@ -200,7 +212,9 @@ router.post('/create', async (req, res) => {
     }
 
     amountUsd = roundUsd(amountUsd);
-    const amountClp = Math.max(1, Math.round(amountUsd * exchangeRate.rate));
+    const calculatedAmountClp = Math.max(1, Math.round(amountUsd * exchangeRate.rate));
+    const forcedAmountClp = getForcedPaymentAmountClp();
+    const amountClp = forcedAmountClp || calculatedAmountClp;
 
     const provider = getPaymentProvider(req);
     const transactionResponse = await provider.createTransaction(
@@ -225,6 +239,10 @@ router.post('/create', async (req, res) => {
       provider: getPaymentProviderName(),
       response_json: {
         create: transactionResponse,
+        amount_calculation: {
+          calculated_amount_clp: calculatedAmountClp,
+          forced_amount_clp: forcedAmountClp,
+        },
       },
     }, { transaction: dbTransaction });
 
@@ -245,6 +263,8 @@ router.post('/create', async (req, res) => {
       url: transactionResponse.url,
       amount_usd: amountUsd,
       amount_clp: amountClp,
+      calculated_amount_clp: calculatedAmountClp,
+      forced_amount_clp: forcedAmountClp,
       exchange_rate: exchangeRate.rate,
       exchange_rate_source: exchangeRate.source,
       exchange_rate_date: exchangeRate.source_date,
